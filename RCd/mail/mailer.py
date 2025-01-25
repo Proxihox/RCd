@@ -17,8 +17,8 @@ SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 def authenticate_gmail():
     creds = None
     # Check if token.json exists (saved credentials).
-    if os.path.exists('RCd/src/mail/token.json'):
-        creds = Credentials.from_authorized_user_file('RCd/src/mail/token.json', SCOPES)
+    if os.path.exists('RCd/mail/token.json'):
+        creds = Credentials.from_authorized_user_file('RCd/mail/token.json', SCOPES)
     # If no valid credentials, authenticate the user.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
