@@ -4,10 +4,9 @@ import subprocess
 import os
 import time
 import random
-from RCd.src.mail.mailer import send_otp
+from RCd.mail.mailer import send_otp
 import RCd.config as config
-from RCd.users.User import add_user, authenticate, load_users, Player
-
+from RCd.src.users.User import add_user, authenticate, load_users, init_admin, Player
 
 ADDR = (config.SERVER, config.PORT)
 FORMAT = 'UTF-8'
@@ -163,7 +162,11 @@ def handle_client(conn, addr):
 
 def start():
     global user_list
-    user_list = load_users() # Load all users from file
+    if(os.path.exists("users.pkl")):
+        user_list = load_users() # Load all users from file
+    else:
+        init_admin()
+        user_list = load_users()
     print("PID: ", os.getpid())
     print(f"Connection command :\nnc {HOST_ADDRESS} {config.PORT}")
     server.listen()

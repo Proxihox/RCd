@@ -1,5 +1,4 @@
 import pickle
-
 class user:
     def __init__(self, _uname, _passwd):
         self.uname: str = _uname
@@ -39,6 +38,7 @@ def make_admin(users: dict[str, user], uname: str):
     pickle.dump(users, open("users.pkl", "wb"))
 
 def init_admin():
+
     users = {}
     users['admin'] = Admin('admin', 'admin')
     pickle.dump(users, open("users.pkl", "wb"))

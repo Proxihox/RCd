@@ -6,7 +6,11 @@ from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from email.mime.text import MIMEText
-import RCd.config as config
+try:
+    import RCd.config as config
+except:
+    class config:
+        MAIL_SENDER = ""
 # If modifying these SCOPES, delete the token.json file to re-authenticate.
 SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 
@@ -54,6 +58,7 @@ def send_otp(email, otp):
 
 if __name__ == '__main__':
     # Test email
+
     recipient_email = config.MAIL_SENDER
     email_subject = "Test Email through Gmail API"
     email_body = "This is a test email for RC setup."
