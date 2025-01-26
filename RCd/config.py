@@ -3,8 +3,8 @@ RCNAME = "PCRC"
 LOGS = False
 
 # Mailer variables
-
-MAIL_SENDER = ""
+VERIFY_MAIL = False
+MAIL_SENDER = "programmingclubiitm.noreply@gmail.com"
 
 
 

@@ -72,7 +72,7 @@ def start_auth(conn):
             resp = conn.recv(MSG_LENGTH).decode(FORMAT).strip()
             if(resp == "Y" or resp == ""):
                 conn.send("Creating new user...\n".encode(FORMAT))
-                if(verify_email(conn,uname)):
+                if(not config.VERIFY_MAIL or verify_email(conn,uname)):
                     create_pw_for_user(conn,uname)
             else:
                 conn.send("Try logging in again!\n".encode(FORMAT))
