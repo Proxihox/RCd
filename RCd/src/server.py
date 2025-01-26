@@ -63,6 +63,7 @@ def start_auth(conn):
     for i in range(3):
         conn.send("Enter roll number: ".encode(FORMAT))
         uname = conn.recv(MSG_LENGTH).decode(FORMAT).strip()
+        uname = uname.lower()
         if(not is_valid_uname(uname)):
             conn.send("Invalid roll number, try again!\n".encode(FORMAT))
             continue

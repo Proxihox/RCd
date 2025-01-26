@@ -1,7 +1,6 @@
 local_test
 *.log
 *.out
-config.py
 users.pkl
 __pycache__
 *.json
