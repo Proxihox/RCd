@@ -4,7 +4,7 @@ LOGS = False
 
 # Mailer variables
 VERIFY_MAIL = False
-MAIL_SENDER = "sanchit9587@gmail.com"
+MAIL_SENDER = ""
 
 
 

@@ -75,7 +75,7 @@ def create_pw_for_user(conn,uname):
     passwd = conn.recv(MSG_LENGTH).decode(FORMAT).strip()
     pw_checks=pw_check(passwd,uname,config.PASSWORD_SECURTIY_LEVEL)
     if not pw_checks:
-        conn.send("Set your password according to your selected password strength, try again!\n".encode(FORMAT))
+        conn.send("This password is not strong enough try using uppercase, digits and special symbols\n".encode(FORMAT))
         return
     conn.send("Confirm password: ".encode(FORMAT))
     cpasswd = conn.recv(MSG_LENGTH).decode(FORMAT).strip()
