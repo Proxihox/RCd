@@ -7,6 +7,7 @@ import random
 from RCd.mail.mailer import send_otp
 import RCd.config as config
 from RCd.src.users.User import add_user, authenticate, load_users, init_admin, Player
+import re
 
 ADDR = (config.SERVER, config.PORT)
 FORMAT = 'UTF-8'
@@ -45,10 +46,37 @@ def verify_email(conn,uname):
     else:
         return False
 
+def pw_check(pw,username,pw_strength):
+    if pw_strength==1:
+        return True
+    min_pw_len=8
+    pw_length=len(pw)
+    error_strength_2={
+        "uppercase_error":re.search(r"[A-Z]",pw),
+        "lowercase_error":re.search(r"[a-z]",pw),
+    }
+    if pw_strength==2:
+        if min_pw_len>pw_length or not all(error_strength_2.values()):
+            return False
+    error_strength_3={
+        **error_strength_2,
+        "digit_error":re.search(r"[0-9]",pw),
+        "special_symbols_error":re.search(r"[!@#$%^&*(),.?\":{}|<>]",pw)
+    }
+    if pw_strength==3:
+        if min_pw_len>pw_length or not all(error_strength_3.values()):
+            return False
+        if pw==username:
+            return False
+    return True
 
 def create_pw_for_user(conn,uname):
     conn.send("Enter password: ".encode(FORMAT))
     passwd = conn.recv(MSG_LENGTH).decode(FORMAT).strip()
+    pw_checks=pw_check(passwd,uname,config.PASSWORD_SECURTIY_LEVEL)
+    if not pw_checks:
+        conn.send("Set your password according to your selected password strength, try again!\n".encode(FORMAT))
+        return
     conn.send("Confirm password: ".encode(FORMAT))
     cpasswd = conn.recv(MSG_LENGTH).decode(FORMAT).strip()
     if(passwd != cpasswd):
