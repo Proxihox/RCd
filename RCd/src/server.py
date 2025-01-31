@@ -36,80 +36,80 @@ def verify_email(conn,uname):
     email = uname + "@smail.iitm.ac.in"
     otp = make_otp()
     send_otp(email,otp)
-    conn.send(f"An OTP has been sent to {email}\n".encode(FORMAT))
-    conn.send(f"Enter OTP: ".encode(FORMAT))
-    user_otp = conn.recv(MSG_LENGTH).decode(FORMAT).strip()
+    conn.send(f"An OTP has been sent to {email}\n")
+    conn.send(f"Enter OTP: ")
+    user_otp = conn.recv(MSG_LENGTH)
     if(otp == int(user_otp)):
-        conn.send("Email verified!\n".encode(FORMAT))
+        conn.send("Email verified!\n")
         return True
     else:
         return False
 
 
 def create_pw_for_user(conn,uname):
-    conn.send("Enter password: ".encode(FORMAT))
-    passwd = conn.recv(MSG_LENGTH).decode(FORMAT).strip()
-    conn.send("Confirm password: ".encode(FORMAT))
-    cpasswd = conn.recv(MSG_LENGTH).decode(FORMAT).strip()
+    conn.send("Enter password: ")
+    passwd = conn.recv(MSG_LENGTH)
+    conn.send("Confirm password: ")
+    cpasswd = conn.recv(MSG_LENGTH)
     if(passwd != cpasswd):
-        conn.send("Passwords do not match, try again!\n".encode(FORMAT))
+        conn.send("Passwords do not match, try again!\n")
         return  
     else:
         add_user(user_list, Player(uname, passwd))
-        conn.send("User created!\n".encode(FORMAT))
+        conn.send("User created!\n")
 
 def start_auth(conn):
     global user_list
     for i in range(3):
-        conn.send("Enter roll number: ".encode(FORMAT))
-        uname = conn.recv(MSG_LENGTH).decode(FORMAT).strip()
+        conn.send("Enter roll number: ")
+        uname = conn.recv(MSG_LENGTH)
         uname = uname.lower()
         if(not is_valid_uname(uname)):
-            conn.send("Invalid roll number, try again!\n".encode(FORMAT))
+            conn.send("Invalid roll number, try again!\n")
             continue
         if(uname not in user_list):
-            conn.send(f"User not found, create new account with username {uname}? [Y/n]:\n".encode(FORMAT))
-            resp = conn.recv(MSG_LENGTH).decode(FORMAT).strip()
+            conn.send(f"User not found, create new account with username {uname}? [Y/n]:\n")
+            resp = conn.recv(MSG_LENGTH)
             if(resp == "Y" or resp == ""):
-                conn.send("Creating new user...\n".encode(FORMAT))
+                conn.send("Creating new user...\n")
                 if(not config.VERIFY_MAIL or verify_email(conn,uname)):
                     create_pw_for_user(conn,uname)
             else:
-                conn.send("Try logging in again!\n".encode(FORMAT))
+                conn.send("Try logging in again!\n")
                 pass
         else:
-            conn.send("Enter password: ".encode(FORMAT))
-            passwd = conn.recv(MSG_LENGTH).decode(FORMAT).strip()
+            conn.send("Enter password: ")
+            passwd = conn.recv(MSG_LENGTH)
             if(authenticate(user_list, uname, passwd)):
-                conn.send("Logging in...\n".encode(FORMAT))
+                conn.send("Logging in...\n")
                 return [True,user_list[uname]]
             else:
-                conn.send("Wrong password or username, try again!\n".encode(FORMAT))
+                conn.send("Wrong password or username, try again!\n")
     return [False, None]
 
 def handle_admin(conn): # give a menu with various options
     options = ["1. Test RC", "2. Add user", "3. Add new problem", "4. Exit"]
     for option in options:
-        conn.send((option + "\n").encode(FORMAT))
-    conn.send("Enter choice : \n".encode(FORMAT))
-    choice = conn.recv(MSG_LENGTH).decode(FORMAT).strip()
+        conn.send((option + "\n"))
+    conn.send("Enter choice : \n")
+    choice = conn.recv(MSG_LENGTH)
     if(choice == "1"):
         handle_player(conn)
     elif(choice == "2"):
-        conn.send("Enter username: ".encode(FORMAT))
-        uname = conn.recv(MSG_LENGTH).decode(FORMAT).strip()
-        conn.send("Enter password: ".encode(FORMAT))
-        passwd = conn.recv(MSG_LENGTH).decode(FORMAT).strip()
+        conn.send("Enter username: ")
+        uname = conn.recv(MSG_LENGTH)
+        conn.send("Enter password: ")
+        passwd = conn.recv(MSG_LENGTH)
         add_user(user_list, Player(uname, passwd))
-        conn.send("User added!\n".encode(FORMAT))
+        conn.send("User added!\n")
     elif(choice == '3'):
         pass
     elif(choice == "4"):
-        conn.send("Exiting...\n".encode(FORMAT))
+        conn.send("Exiting...\n")
         conn.close()
         return
     else:
-        conn.send("Enter an integer for your choice\n".encode(FORMAT))
+        conn.send("Enter an integer for your choice\n")
 
 def handle_player(conn,user): # create a subprocess and link its input output with the players socket.
     rc = subprocess.Popen(
@@ -122,18 +122,18 @@ def handle_player(conn,user): # create a subprocess and link its input output wi
     )
     connected = True
     try:
-        conn.send("RC session started!\n".encode(FORMAT))
+        conn.send("RC session started!\n")
         while connected:
-            resp = rc.stdout.readline().strip()
-            conn.send((resp+"\n").encode(FORMAT))
-            msg = conn.recv(MSG_LENGTH).decode(FORMAT).strip()
+            resp = rc.stdout.readline()
+            conn.send((resp+"\n"))
+            msg = conn.recv(MSG_LENGTH)
             log(f"Recv: {msg}\n")
             rc.stdin.write(msg + "\n")
             rc.stdin.flush()
             time.sleep(10e-6)
-            resp = rc.stdout.readline().strip()
+            resp = rc.stdout.readline()
             log(f"-> {resp}\n")
-            conn.send((resp+"\n").encode(FORMAT))
+            conn.send((resp+"\n"))
     except Exception as e:
         log(f"[ERROR] {str(e)}\n")
     finally:
@@ -145,7 +145,7 @@ def handle_player(conn,user): # create a subprocess and link its input output wi
 def handle_client(conn, addr): 
     auth, user = start_auth(conn) # Authenticate user 
     if(not auth):
-        conn.send("Authentication failed, closing connection...\n".encode(FORMAT))
+        conn.send("Authentication failed, closing connection...\n")
         conn.close()
         return
     if(user.__class__.__name__ == "Admin"): # Handle admins
@@ -158,7 +158,23 @@ def handle_client(conn, addr):
         handle_player(conn,user)
         log(f"[DISCONNECTED] {addr} disconnected.\n")
         
-
+class conn_handler:
+    def __init__(self, conn):
+        self.conn = conn
+    def send(self, msg):
+        self.conn.send(msg.encode(FORMAT))
+    def recv(self, length):
+        s = ""
+        while(s[-1:] != "\n"):
+            ch = self.conn.recv(length).decode()
+            if(ch != "\x08"):
+                s += ch
+            else:
+                s = s[:-1]
+            #print(repr(s),repr(s[-1]))
+        return s.strip()
+    def close(self):
+        self.conn.close()
     
 
 def start():
@@ -173,7 +189,8 @@ def start():
     server.listen()
     try:
         while True: # Accept connections and start a new thread for each
-            conn, addr = server.accept()
+            conn_raw, addr = server.accept()
+            conn = conn_handler(conn_raw)
             thread = threading.Thread(target=handle_client, args=(conn, addr))
             thread.start()
     except KeyboardInterrupt:
