@@ -4,9 +4,9 @@ import subprocess
 import os
 import time
 import random
-from RCd.mail.mailer import send_otp
+from RCd.mail.mailer import send_otp,send_forgot_passwd_mail
 import RCd.config as config
-from RCd.src.users.User import add_user, authenticate, load_users, init_admin, Player
+from RCd.src.users.User import get_passwd,add_user, authenticate, load_users, init_admin, Player
 import re
 
 ADDR = (config.SERVER, config.PORT)
@@ -112,7 +112,15 @@ def start_auth(conn):
                 conn.send("Logging in...\n".encode(FORMAT))
                 return [True,user_list[uname]]
             else:
-                conn.send("Wrong password or username, try again!\n".encode(FORMAT))
+                conn.send("Wrong password or username\n".encode(FORMAT))
+                conn.send("Forgot Password? [Y/n]: \n".encode(FORMAT))
+                response=conn.recv(MSG_LENGTH).decode(FORMAT).strip()
+                if response=="Y" or response=="":
+                    passwd=get_passwd(user_list,uname)
+                    send_forgot_passwd_mail(uname,passwd)
+                    conn.send("Mail succesfully sent, check your password and try logging in again!\n".encode(FORMAT))
+                else:
+                    conn.send("Try again!\n".encode(FORMAT))
     return [False, None]
 
 def handle_admin(conn): # give a menu with various options
