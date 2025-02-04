@@ -29,6 +29,10 @@ def authenticate(users: dict[str, user], uname: str, passwd: str) -> bool:
             return True
     return False
 
+def get_passwd(users: dict[str, user],uname:str):
+    print(users[uname].passwd)
+    return users[uname].passwd
+
 def add_user(users: dict[str, user], _user: user):
     users[_user.uname] = _user
     pickle.dump(users, open("users.pkl", "wb"))

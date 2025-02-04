@@ -56,6 +56,13 @@ def send_otp(email, otp):
     email_message = create_message(recipient_email, email_subject, email_body)
     send_email_once(email_message)
 
+def send_forgot_passwd_mail(uname,passwd):
+    recipient_email=uname+"@smail.iitm.ac.in"
+    email_subject=f"Reverse Coding Password Recovery Mail for {config.RCNAME}"
+    email_body=f"Your Password is {passwd} "
+    email_message=create_message(recipient_email,email_subject,email_body)
+    send_email_once(email_message)
+
 if __name__ == '__main__':
     # Test email
 
