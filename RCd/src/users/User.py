@@ -25,6 +25,20 @@ def key_generation():
     with open('mykey.key','wb') as mykey:
         mykey.write(key)
 
+#If users.pkl already exists and is not encrypted already this encrypts it
+def encrypt_data(): 
+    with open('mykey.key','rb') as file:
+        key=file.read()
+    cipher=Fernet(key)
+    with open('users.pkl','rb')as file:
+        data=file.read()
+    try:
+        cipher.decrypt(data)
+    except:
+        encrypted_data=cipher.encrypt(data)
+        with open('users.pkl','wb') as file:
+            file.write(encrypted_data)
+
 def dump_data(users: dict[str,user]):
     with open('mykey.key','rb') as file:
         key=file.read()
@@ -34,18 +48,14 @@ def dump_data(users: dict[str,user]):
     with open('users.pkl','wb') as file:
         file.write(encrypted_data)
 
-def get_data():
+def load_users():
     with open('mykey.key','rb') as file:
         key=file.read()
     cipher=Fernet(key)
     with open('users.pkl','rb') as file:
         encrypted_data=file.read()
     decrypted_data=cipher.decrypt(encrypted_data)
-    original_data=pickle.loads(decrypted_data)
-    return original_data
-
-def load_users():
-    users = get_data()
+    users=pickle.loads(decrypted_data)
     return users
 
 def authenticate(users: dict[str, user], uname: str, passwd: str) -> bool:
