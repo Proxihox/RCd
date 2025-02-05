@@ -25,29 +25,28 @@ def key_generation():
     with open('mykey.key','wb') as mykey:
         mykey.write(key)
 
-def load_key():
-    with open('mykey.key','rb') as mykey:
-        key=mykey.read()
-        return key
+def dump_data(users: dict[str,user]):
+    with open('mykey.key','rb') as file:
+        key=file.read()
+    cipher=Fernet(key)
+    pickled_data=pickle.dumps(users)
+    encrypted_data=cipher.encrypt(pickled_data)
+    with open('users.pkl','wb') as file:
+        file.write(encrypted_data)
 
-def encrypt_data(decrypted):
-    f=Fernet(load_key())
-    encrypted=f.encrypt(decrypted)
-    return encrypted
-
-def decrypt_data(encrypted):
-    f=Fernet(load_key())
-    with open('users.pkl','rb') as users:
-        decrypted=f.decrypt(encrypted)
-        return decrypted
+def get_data():
+    with open('mykey.key','rb') as file:
+        key=file.read()
+    cipher=Fernet(key)
+    with open('users.pkl','rb') as file:
+        encrypted_data=file.read()
+    decrypted_data=cipher.decrypt(encrypted_data)
+    original_data=pickle.loads(decrypted_data)
+    return original_data
 
 def load_users():
-    users = decrypt_data(pickle.load(open("users.pkl", "rb")))
+    users = get_data()
     return users
-
-def dump_data(users: dict[str,user]):
-    encrypted=encrypt_data(users)
-    pickle.dump(encrypted,open('users.pkl','wb'))
 
 def authenticate(users: dict[str, user], uname: str, passwd: str) -> bool:
     if uname in users:
@@ -68,7 +67,7 @@ def make_admin(users: dict[str, user], uname: str):
     dump_data(users)
 
 def init_admin():
-
+    key_generation()
     users = {}
     users['admin'] = Admin('admin', 'admin')
     dump_data(users)
