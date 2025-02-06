@@ -4,3 +4,4 @@ local_test
 users.pkl
 __pycache__
 *.json
+mykey.key
