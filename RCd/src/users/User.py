@@ -1,9 +1,11 @@
 import pickle
+import RCd.config as config
 class user:
     def __init__(self, _uname, _passwd):
         self.uname: str = _uname
         self.passwd: str = _passwd
         self.active:bool = False
+
         #print(self.desc())
         pass
     def desc(self):
@@ -12,6 +14,7 @@ class user:
 
 class Player(user):
     def __init__(self, _uname, _passwd):
+        self.qlim= config.QUERY_LIMIT
         super().__init__(_uname, _passwd)
 
 class Admin(user):

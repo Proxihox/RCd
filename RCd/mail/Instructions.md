@@ -11,7 +11,7 @@ Recently, google has ramped up its security protection, and as a result, the see
 
 4. Open the credentials tab on the console and create new OAuth Client ID credentials. Choose Desktop App and download the json file. Rename it to credentials.json and move into this directory. 
 
-5. Change the 13th line of the mailer.py to your email ID and then run the mailer.py file using `python3 mailer.py` (Make sure you are in the mail directory before doing this). It should open a browser which asks you to login to the mail ID and approve sending permissions. This is a one time thing as it will generate a token.json which will be used for all future purposes.
+5. Change the 13th line of the mailer.py and set `MAIL_SENDER` in config.py to your email ID and then run the mailer.py file using `python3 RCd/mail/mailer.py` . It should open a browser which asks you to login to the mail ID and approve sending permissions. This is a one time thing as it will generate a token.json which will be used for all future purposes.
 
 Verify that the mailer is working. You should have recieved a test email sent by the same mail ID.
 

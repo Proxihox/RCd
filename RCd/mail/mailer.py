@@ -10,7 +10,7 @@ try:
     import RCd.config as config
 except:
     class config:
-        MAIL_SENDER = ""
+        MAIL_SENDER = "programmingclubiitm.noreply@gmail.com"
 # If modifying these SCOPES, delete the token.json file to re-authenticate.
 SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 
@@ -19,8 +19,11 @@ def authenticate_gmail():
     # Check if token.json exists (saved credentials).
     if os.path.exists('RCd/mail/token.json'):
         creds = Credentials.from_authorized_user_file('RCd/mail/token.json', SCOPES)
+        print("Loading token.json")
+    
     # If no valid credentials, authenticate the user.
     if not creds or not creds.valid:
+        print("Need to validate credentials")
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:

@@ -10,6 +10,6 @@ RUN apt-get update && apt-get install -y \
     cmake \
     && rm -rf /var/lib/apt/lists/*
 
-EXPOSE 65432
+EXPOSE 8080
 RUN ./setup.sh
-CMD ["python","main.py"]
+CMD ["python3","main.py"]

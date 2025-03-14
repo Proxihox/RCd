@@ -85,6 +85,7 @@ int main() {
             getline(cin,s);
             if (s == "-1") {
                 state = 0;
+                cout << "Exiting to Main Menu" << endl;
             } else if (state == 0) {
                 state = stoi(s);
                 cout << "Entered problem " << s << endl;

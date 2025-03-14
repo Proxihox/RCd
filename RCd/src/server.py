@@ -4,6 +4,7 @@ import subprocess
 import os
 import time
 import random
+from RCd.src import users
 from RCd.mail.mailer import send_otp,send_forgot_passwd_mail
 import RCd.config as config
 from RCd.src.users.User import get_passwd,add_user, authenticate, load_users, init_admin, Player
@@ -63,7 +64,7 @@ def pw_check(pw,username,pw_strength):
         "digit_error":re.search(r"[0-9]",pw),
         "special_symbols_error":re.search(r"[!@#$%^&*(),.?\":{}|<>]",pw)
     }
-    if pw_strength==3:
+    if pw_strength==1:
         if min_pw_len>pw_length or not all(error_strength_3.values()):
             return False
         if pw==username:
@@ -98,7 +99,7 @@ def start_auth(conn):
         if(uname not in user_list):
             conn.send(f"User not found, create new account with username {uname}? [Y/n]:\n")
             resp = conn.recv(MSG_LENGTH)
-            if(resp == "Y" or resp == ""):
+            if(resp.lower() == "Y" or resp == ""):
                 conn.send("Creating new user...\n")
                 if(not config.VERIFY_MAIL or verify_email(conn,uname)):
                     create_pw_for_user(conn,uname)
@@ -149,6 +150,7 @@ def handle_admin(conn): # give a menu with various options
         conn.send("Enter an integer for your choice\n")
 
 def handle_player(conn,user): # create a subprocess and link its input output with the players socket.
+    user.qlim += 10
     rc = subprocess.Popen(
         ["./RC.out"],
         #["python3", "reverseCoding.py"],
@@ -160,7 +162,9 @@ def handle_player(conn,user): # create a subprocess and link its input output wi
     connected = True
     try:
         conn.send("RC session started!\n")
-        while connected:
+
+        while (connected):
+            user.qlim -= 1
             resp = rc.stdout.readline()
             conn.send((resp+"\n"))
             msg = conn.recv(MSG_LENGTH)
@@ -171,6 +175,8 @@ def handle_player(conn,user): # create a subprocess and link its input output wi
             resp = rc.stdout.readline()
             log(f"-> {resp}\n")
             conn.send((resp+"\n"))
+            if(user.qlim == 0):
+                connected = False
     except Exception as e:
         log(f"[ERROR] {str(e)}\n")
     finally:
@@ -199,6 +205,7 @@ class conn_handler:
     def __init__(self, conn):
         self.conn = conn
     def send(self, msg):
+        msg = msg.strip()+"\n"
         self.conn.send(msg.encode(FORMAT))
     def recv(self, length):
         s = ""
@@ -208,7 +215,7 @@ class conn_handler:
                 s += ch
             else:
                 s = s[:-1]
-            #print(repr(s),repr(s[-1]))
+            # print(repr(s),repr(s[-1]))
         return s.strip()
     def close(self):
         self.conn.close()
@@ -241,3 +248,4 @@ if __name__ == "__main__":
     print("Starting server...") 
     user_list = load_users()
     start()
+    print("Success!")

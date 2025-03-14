@@ -12,7 +12,7 @@ Once you launch the server the terminal should show this :
 Starting server...
 PID:  525442
 Connection command :
-nc 127.0.1.1 65432
+nc 127.0.1.1 8080
 ```
 Open another terminal tab and enter the connection command.
 You should be prompted to enter your roll number and register as a new user. Login again and try out the sample RC problems.
