@@ -1,4 +1,4 @@
-# Setitng up the email OTP verification
+# Setting up the email OTP verification
 
 Recently, google has ramped up its security protection, and as a result, the seemingly simple process of automating a mail is now insanely complicated.
 

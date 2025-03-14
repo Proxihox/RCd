@@ -7,7 +7,7 @@ import random
 from RCd.src import users
 from RCd.mail.mailer import send_otp,send_forgot_passwd_mail
 import RCd.config as config
-from RCd.src.users.User import get_passwd,add_user, authenticate, load_users, init_admin, Player
+from RCd.src.users.User import get_passwd,add_user, authenticate, load_users, init_admin, Player,encrypt_data
 import re
 
 ADDR = (config.SERVER, config.PORT)
@@ -224,6 +224,7 @@ class conn_handler:
 def start():
     global user_list
     if(os.path.exists("users.pkl")):
+        encrypt_data()
         user_list = load_users() # Load all users from file
     else:
         init_admin()
