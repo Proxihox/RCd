@@ -24,11 +24,13 @@ def log(logstr):
             f.write(logstr)
 
 def is_valid_uname(uname):
-    checks = [len(uname) == 8,
-               uname[0:2].isalpha(),
-               uname[2:4].isdigit(),
-               uname[4].isalpha(),
-                uname[5:8].isdigit()]
+    checks = [
+        len(uname) == 8,
+        uname[0:2].isalpha(),
+        uname[2:4].isdigit(),
+        uname[4:5].isalpha(),
+        uname[5:8].isdigit(),
+    ]
     return all(checks)
 
 def make_otp():
@@ -48,35 +50,32 @@ def verify_email(conn,uname):
         return False
 
 def pw_check(pw,username,pw_strength):
-    if pw_strength==1:
-        return True
-    min_pw_len=8
-    pw_length=len(pw)
-    error_strength_2={
-        "uppercase_error":re.search(r"[A-Z]",pw),
-        "lowercase_error":re.search(r"[a-z]",pw),
-    }
-    if pw_strength==2:
-        if min_pw_len>pw_length or not all(error_strength_2.values()):
-            return False
-    error_strength_3={
-        **error_strength_2,
-        "digit_error":re.search(r"[0-9]",pw),
-        "special_symbols_error":re.search(r"[!@#$%^&*(),.?\":{}|<>]",pw)
-    }
-    if pw_strength==1:
-        if min_pw_len>pw_length or not all(error_strength_3.values()):
-            return False
-        if pw==username:
-            return False
-    return True
+    # 0: No checks
+    # 1: Minimum length
+    # 2: Minimum length, uppercase, lowercase
+    # 3: Minimum length, uppercase, lowercase, digits
+    # 4: Minimum length, uppercase, lowercase, digits, special symbols
+    # 5: Minimum length, uppercase, lowercase, digits, special symbols, username not in password
+
+    min_pw_len = 8
+    checks = [
+        len(pw) >= min_pw_len,
+        re.search(r"[A-Z]", pw) and re.search(r"[a-z]", pw),
+        re.search(r"[0-9]", pw),
+        re.search(r"[^A-Za-z0-9]", pw),
+        username not in pw,
+    ]
+
+    return all(checks[:pw_strength])
 
 def create_pw_for_user(conn,uname):
     conn.send("Enter password: ")
     passwd = conn.recv(MSG_LENGTH)
     pw_checks=pw_check(passwd,uname,config.PASSWORD_SECURTIY_LEVEL)
     if not pw_checks:
-        conn.send("This password is not strong enough try using uppercase, digits and special symbols\n")
+        error_msg = ["minimum length of 8 characters", "uppercase, lowercase letters", "digits", "special symbols", "username not in password"]
+        err_msg = "Make sure your password has:\n" + ", ".join(error_msg[:config.PASSWORD_SECURTIY_LEVEL]) + "\n"
+        conn.send(err_msg)
         return
     conn.send("Confirm password: ")
     cpasswd = conn.recv(MSG_LENGTH)
@@ -116,7 +115,7 @@ def start_auth(conn):
                 conn.send("Wrong password or username\n")
                 conn.send("Forgot Password? [Y/n]: \n")
                 response=conn.recv(MSG_LENGTH)
-                if response=="Y" or response=="":
+                if response in ("Y", "y", ""):
                     passwd=get_passwd(user_list,uname)
                     send_forgot_passwd_mail(uname,passwd)
                     conn.send("Mail succesfully sent, check your password and try logging in again!\n")
