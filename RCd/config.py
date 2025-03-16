@@ -13,10 +13,13 @@ MAIL_SENDER = "programmingclubiitm.noreply@gmail.com"
 PORT = int(os.environ.get("PORT", 8080))
 SERVER = "0.0.0.0"
 
-# Password Security variable
-PASSWORD_SECURTIY_LEVEL=1
 QUERY_LIMIT = 1000
-# 1: No checks 
-# 2: Min length of 8 use uppercase and lowercase characters,
-# 3: 2 + use digits and special characters and don't use username as password
 
+# Password Security variable
+PASSWORD_SECURTIY_LEVEL=3
+# 0: No checks
+# 1: Minimum length
+# 2: Minimum length, uppercase, lowercase
+# 3: Minimum length, uppercase, lowercase, digits
+# 4: Minimum length, uppercase, lowercase, digits, special symbols
+# 5: Minimum length, uppercase, lowercase, digits, special symbols, username not in password
