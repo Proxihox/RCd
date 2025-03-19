@@ -221,7 +221,7 @@ class conn_handler:
         return s.strip()
     def close(self):
         self.conn.close()
-    
+
 
 def start():
     global user_list
@@ -233,7 +233,7 @@ def start():
         user_list = load_users()
     pid = os.getpid()
     print("PID: ", pid)
-    print(f"Connection command :\nnc {HOST_ADDRESS} {config.PORT}")
+    print(f"<ip> <port> :\n{HOST_ADDRESS} {config.PORT}")
     server.listen()
     while True:
         try:

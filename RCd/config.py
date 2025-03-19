@@ -3,14 +3,14 @@ RCNAME = "PCRC"
 LOGS = False
 
 # Mailer variables
-VERIFY_MAIL = True
-MAIL_SENDER = "example@gmail.com"
+VERIFY_MAIL = True # Do you want email verification?
+MAIL_SENDER = "example@gmail.com" # The email ID from which you'll send mails like OTP for registration
 
 
 
 # Network variables
 
-PORT = int(os.environ.get("PORT", 8080))
+PORT = int(os.environ.get("PORT", 8080)) # You can change the port number from 8080 to anything of your choice. 
 SERVER = "0.0.0.0"
 
 # Prevent spamming
