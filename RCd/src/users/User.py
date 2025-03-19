@@ -1,5 +1,6 @@
 import pickle
 from cryptography.fernet import Fernet
+import os
 
 import RCd.config as config
 class user:
@@ -24,15 +25,20 @@ class Admin(user):
         super().__init__(_uname, _passwd)
 
 def key_generation():
-    key=Fernet.generate_key()
-    with open('mykey.key','wb') as mykey:
+    key = Fernet.generate_key()
+    with open('mykey.key', 'wb') as mykey:
         mykey.write(key)
+
+def get_key():
+    if not os.path.exists('mykey.key'):
+        key_generation()
+    with open('mykey.key', 'rb') as file:
+        return file.read()
 
 #If users.pkl already exists and is not encrypted already this encrypts it
 def encrypt_data(): 
-    with open('mykey.key','rb') as file:
-        key=file.read()
-    cipher=Fernet(key)
+    key = get_key()
+    cipher = Fernet(key)
     with open('users.pkl','rb')as file:
         data=file.read()
     try:
@@ -43,18 +49,16 @@ def encrypt_data():
             file.write(encrypted_data)
 
 def dump_data(users: dict[str,user]):
-    with open('mykey.key','rb') as file:
-        key=file.read()
-    cipher=Fernet(key)
+    key = get_key()
+    cipher = Fernet(key)
     pickled_data=pickle.dumps(users)
     encrypted_data=cipher.encrypt(pickled_data)
     with open('users.pkl','wb') as file:
         file.write(encrypted_data)
 
 def load_users():
-    with open('mykey.key','rb') as file:
-        key=file.read()
-    cipher=Fernet(key)
+    key = get_key()
+    cipher = Fernet(key)
     with open('users.pkl','rb') as file:
         encrypted_data=file.read()
     decrypted_data=cipher.decrypt(encrypted_data)
@@ -82,5 +86,6 @@ def make_admin(users: dict[str, user], uname: str):
 def init_admin():
     key_generation()
     users = {}
+    # Generate an admin user for setup purposes
     users['admin'] = Admin('admin', 'admin')
     dump_data(users)

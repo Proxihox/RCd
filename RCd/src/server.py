@@ -15,8 +15,13 @@ FORMAT = 'UTF-8'
 HOST_ADDRESS = socket.gethostbyname(socket.gethostname())
 MSG_LENGTH = 1024
 
+# Reuse ports
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server.bind(ADDR)
+
+# Add global lock
+user_list_lock = threading.Lock()
 
 def log(logstr):
     if(config.LOGS):
@@ -24,20 +29,14 @@ def log(logstr):
             f.write(logstr)
 
 def is_valid_uname(uname):
-    checks = [
-        len(uname) == 8,
-        uname[0:2].isalpha(),
-        uname[2:4].isdigit(),
-        uname[4:5].isalpha(),
-        uname[5:8].isdigit(),
-    ]
-    return all(checks)
+    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return bool(re.match(email_pattern, uname))
 
 def make_otp():
     return random.randint(1000,9999)
 
 def verify_email(conn,uname):
-    email = uname + "@smail.iitm.ac.in"
+    email = uname
     otp = make_otp()
     send_otp(email,otp)
     conn.send(f"An OTP has been sent to {email}\n")
@@ -89,16 +88,16 @@ def create_pw_for_user(conn,uname):
 def start_auth(conn):
     global user_list
     for i in range(3):
-        conn.send("Enter roll number: ")
+        conn.send("Enter email ID: ")
         uname = conn.recv(MSG_LENGTH)
         uname = uname.lower()
         if(not is_valid_uname(uname)):
-            conn.send("Invalid roll number, try again!\n")
+            conn.send("Invalid email, try again!\n")
             continue
         if(uname not in user_list):
             conn.send(f"User not found, create new account with username {uname}? [Y/n]:\n")
             resp = conn.recv(MSG_LENGTH)
-            if(resp.lower() == "Y" or resp == ""):
+            if(resp.lower() == "y" or resp == ""):
                 conn.send("Creating new user...\n")
                 if(not config.VERIFY_MAIL or verify_email(conn,uname)):
                     create_pw_for_user(conn,uname)
@@ -149,7 +148,7 @@ def handle_admin(conn): # give a menu with various options
         conn.send("Enter an integer for your choice\n")
 
 def handle_player(conn,user): # create a subprocess and link its input output with the players socket.
-    user.qlim += 10
+    user.qlim = max(500,user.qlim)
     rc = subprocess.Popen(
         ["./RC.out"],
         #["python3", "reverseCoding.py"],
@@ -179,8 +178,9 @@ def handle_player(conn,user): # create a subprocess and link its input output wi
     except Exception as e:
         log(f"[ERROR] {str(e)}\n")
     finally:
+        with user_list_lock:
+            user_list[user.uname].active = False
         rc.terminate()  # Ensure subprocess is terminated
-        user_list[user.uname].active = False # Set user as inactive
         conn.close()
 
 
@@ -209,11 +209,14 @@ class conn_handler:
     def recv(self, length):
         s = ""
         while(s[-1:] != "\n"):
-            ch = self.conn.recv(length).decode()
-            if(ch != "\x08"):
-                s += ch
-            else:
-                s = s[:-1]
+            try:
+                ch = self.conn.recv(length).decode()
+                if(ch != "\x08"):
+                    s += ch
+                else:
+                    s = s[:-1]
+            except:
+                pass
             # print(repr(s),repr(s[-1]))
         return s.strip()
     def close(self):
@@ -228,21 +231,27 @@ def start():
     else:
         init_admin()
         user_list = load_users()
-    print("PID: ", os.getpid())
+    pid = os.getpid()
+    print("PID: ", pid)
     print(f"Connection command :\nnc {HOST_ADDRESS} {config.PORT}")
     server.listen()
-    try:
-        while True: # Accept connections and start a new thread for each
+    while True:
+        try:
+            # Accept connections and start a new thread for each
             conn_raw, addr = server.accept()
             conn = conn_handler(conn_raw)
             thread = threading.Thread(target=handle_client, args=(conn, addr))
+            thread.daemon = True  # Make thread daemon so it closes with main thread
             thread.start()
-    except KeyboardInterrupt:
-        print("\n[SHUTTING DOWN] Server is shutting down...")
-    finally:
-        server.close()  # Ensure the socket is properly closed
-        print("[CLEANUP] Server socket closed. Exiting.")
-    server.close()
+        except KeyboardInterrupt:
+            print("\n[SHUTTING DOWN] Server is shutting down...")
+            break
+        except Exception as e:
+            log(f"[ERROR] Connection error: {str(e)}\n")
+            continue
+    
+    server.close()  # Ensure the socket is properly closed
+    print("[CLEANUP] Server socket closed. Exiting.")
 
 if __name__ == "__main__":
     print("Starting server...") 

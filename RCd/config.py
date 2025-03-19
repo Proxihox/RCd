@@ -1,10 +1,10 @@
 import os
 RCNAME = "PCRC"
-LOGS = True
+LOGS = False
 
 # Mailer variables
 VERIFY_MAIL = True
-MAIL_SENDER = "programmingclubiitm.noreply@gmail.com"
+MAIL_SENDER = "example@gmail.com"
 
 
 
@@ -13,6 +13,7 @@ MAIL_SENDER = "programmingclubiitm.noreply@gmail.com"
 PORT = int(os.environ.get("PORT", 8080))
 SERVER = "0.0.0.0"
 
+# Prevent spamming
 QUERY_LIMIT = 1000
 
 # Password Security variable

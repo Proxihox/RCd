@@ -24,23 +24,6 @@ class problem{
     }
 };
 
-int numify(char16_t letter) {
-    // Check if the character is a valid alphabet letter
-    if (std::isalpha(letter)) {
-        // Convert to lowercase and calculate position
-        return std::tolower(letter) - 'a' + 1;
-    }
-    // Return -1 for non-alphabet characters
-    return -1;
-}
-
-bool isVowel(char c) {
-    // Convert to lowercase for case-insensitivity
-    c = std::tolower(c);
-    // Check if the character is a vowel
-    return (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u');
-}
-
 vector<int> get_ints(string s){
     stringstream stream(s);
     int number;
@@ -53,30 +36,36 @@ vector<int> get_ints(string s){
 
 
 problem p1("Enter a string",[](string s){
-    int res = 0;
-    for(auto x:s){
-        int n = numify(x);
-        res += (isVowel(x)?-1:1)*n*n;
+    string reversed;
+    for(int i = s.length()-1; i >= 0; i--) {
+        reversed += s[i];
     }
-    cout << res << endl;
+    cout << reversed << endl;
 });
 
-problem p2("Enter 3 space seperated integers from 1 to 1000",[](string s){
+problem p2("Enter 3 space seperated integers",[](string s){
     vector<int> nums = get_ints(s);
-    int a = nums[0],b = nums[1],c = nums[2];
-    double mean = (a+b+c)/3;
-    int var = 100*((a*a + b*b + c*c)/3 - mean*mean);
-    double res = var/100;
-    cout << res << "\n";
+    int sum = nums[0] + nums[1] + nums[2];
+    cout << sum << "\n";
 });
+
+bool isVowel(char c) {
+    // Convert to lowercase for case-insensitivity
+    c = std::tolower(c);
+    // Check if the character is a vowel
+    return (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u');
+}
+
+
 
 int main() {
     problem problems[] = {p1,p2};
     int state = 0;
     string s;
+    int n_probs = sizeof(problems)/sizeof(problem);
     while(true){
         if(state == 0){
-            cout << "Main Menu" << endl;
+            cout << "Enter question number: (1 to " << n_probs << "): " << endl;
         }
         else{
             cout << problems[state-1].prompt << endl;
