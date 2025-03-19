@@ -1,5 +1,5 @@
 import os
-RCNAME = "PCRC"
+RCNAME = "RC"
 LOGS = False
 
 # Mailer variables
