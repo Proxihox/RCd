@@ -183,21 +183,55 @@ def handle_player(conn,user): # create a subprocess and link its input output wi
         rc.terminate()  # Ensure subprocess is terminated
         conn.close()
 
+def handle_simple(conn): # create a subprocess and link its input output with the players socket.
+    rc = subprocess.Popen(
+        ["./RC.out"],
+        #["python3", "reverseCoding.py"],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True
+    )
+    connected = True
+    try:
+        conn.send("RC session started!\n")
+
+        while (connected):
+            resp = rc.stdout.readline()
+            conn.send((resp+"\n"))
+            msg = conn.recv(MSG_LENGTH)
+            log(f"Recv: {msg}\n")
+            rc.stdin.write(msg + "\n")
+            rc.stdin.flush()
+            time.sleep(10e-6)
+            resp = rc.stdout.readline()
+            log(f"-> {resp}\n")
+            conn.send((resp+"\n"))
+    except Exception as e:
+        log(f"[ERROR] {str(e)}\n")
+    finally:
+        rc.terminate()  # Ensure subprocess is terminated
+        conn.close()
 
 def handle_client(conn, addr): 
-    auth, user = start_auth(conn) # Authenticate user 
-    if(not auth):
-        conn.send("Authentication failed, closing connection...\n")
-        conn.close()
-        return
-    if(user.__class__.__name__ == "Admin"): # Handle admins
-        log(f"[NEW CONNECTION] {addr} connected as Admin.\n")
-        handle_admin(conn)
-        log(f"[DISCONNECTED] {addr} (adming) disconnected.\n")
-    
-    elif(user.__class__.__name__ == "Player"): # Handle players
+    if(config.LOGIN):
+        auth, user = start_auth(conn) # Authenticate user 
+        if(not auth):
+            conn.send("Authentication failed, closing connection...\n")
+            conn.close()
+            return
+        if(user.__class__.__name__ == "Admin"): # Handle admins
+            log(f"[NEW CONNECTION] {addr} connected as Admin.\n")
+            handle_admin(conn)
+            log(f"[DISCONNECTED] {addr} (adming) disconnected.\n")
+        
+        elif(user.__class__.__name__ == "Player"): # Handle players
+            log(f"[NEW CONNECTION] {addr} connected.\n")
+            handle_player(conn,user)
+            log(f"[DISCONNECTED] {addr} disconnected.\n")
+    else:
         log(f"[NEW CONNECTION] {addr} connected.\n")
-        handle_player(conn,user)
+        handle_simple()
         log(f"[DISCONNECTED] {addr} disconnected.\n")
         
 class conn_handler:

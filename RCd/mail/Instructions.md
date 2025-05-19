@@ -1,6 +1,6 @@
 # Setting up the email OTP verification
 
-Recently, google has ramped up its security protection, and as a result, the seemingly simple process of automating a mail is now insanely complicated.
+Recently, google has ramped up its security protection, and as a result, the seemingly simple process of automating a mail is now a bit complicated.
 
 
 1. Create a new Google Cloud project on [Google Cloud Console](https://console.cloud.google.com/). Make sure you are doing this on the email ID you will use to send the automated OTP's.

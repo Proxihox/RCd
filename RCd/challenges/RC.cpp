@@ -10,8 +10,8 @@ using namespace std;
 
 /* format for problem 
 One line prompt for input format
-read from cin
-send output to cout
+read from the input string s
+send output to cout in a single line
 */
 
 class problem{

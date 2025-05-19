@@ -2,16 +2,15 @@ import os
 RCNAME = "RC"
 LOGS = False
 
+LOGIN = False # Set to false if you want to allow people to directly query the server
 # Mailer variables
 VERIFY_MAIL = True # Do you want email verification?
 MAIL_SENDER = "example@gmail.com" # The email ID from which you'll send mails like OTP for registration
 
 
-
 # Network variables
-
 PORT = int(os.environ.get("PORT", 8080)) # You can change the port number from 8080 to anything of your choice. 
-SERVER = "0.0.0.0"
+SERVER = "0.0.0.0" # Don't change
 
 # Prevent spamming
 QUERY_LIMIT = 1000

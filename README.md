@@ -6,7 +6,9 @@ There are 2 issues with the standard format of providing an executable binary to
 2. Participants using decompilers to obtain the pattern
 This tool prevents all that hassle, by hosting your Reverse coding challenge on a server, which every OS can connect to and provides a fair playing ground to everyone.
 
-Setting up and testing:
+You can host this RC framework on a server and allow participants to query the server over the internet. Read [the Guide](Guide.md) on how to host the server on the cloud.
+
+## Quick set up and local testing:
 
 Git clone repository and run `./setup.sh` once to install requirements and compile the Reverse Coding file. Open the `config.py` file and fill in the variables as required. Launch the server using `python3 main.py` . 
 
@@ -18,14 +20,12 @@ PID:  134158
 127.0.1.1 8080
 ```
 
-# Connecting to the server
-You need to connect to the server using a web socket. Users can access through this [colab notebook](https://colab.research.google.com/drive/1jeKH3Nfrz2U-exz415XC-Z_ezeXpFLQy?usp=sharing). Make sure to replace the `<ip> <port>` with the server's details.
+## Connecting to the local server
 
-Alternatively Unix based OS's can directly connect to the server using netcat:
+Unix based OS's can directly connect to the server using netcat:
 ```
 nc -v <ip> <port>
 ```
+Window's user's will need to enable `telnet` and then run the above command, replacing `nc` with `telnet`.
 
 You should be prompted to enter your email ID and register as a new user. Login again and try out the sample RC problems.
-
-Guide on how to host it publicly coming soon.
